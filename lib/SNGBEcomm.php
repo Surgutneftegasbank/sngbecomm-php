@@ -12,8 +12,8 @@ if (!function_exists('curl_init')) {
     //throw new Exception('Stripe needs the Multibyte String PHP extension.');
 //}
 
-// Stripe singleton
-//require(dirname(__FILE__) . '/SNGBEcomm/SNGBEcomm.php');
+// SNGBEcomm
+require(dirname(__FILE__) . '/SNGBEcomm/SNGBEcomm.php');
 
 // Utilities
 //require(dirname(__FILE__) . '/SNGBEcomm/Util.php');

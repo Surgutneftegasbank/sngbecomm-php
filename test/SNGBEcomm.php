@@ -1,8 +1,8 @@
 <?php
 
-echo "Running the Stripe PHP bindings test suite.\n".
-     "If you're trying to use the Stripe PHP bindings you'll probably want ".
-     "to require('lib/Stripe.php'); instead of this file\n";
+//echo "Running the SNGBEcomm PHP bindings test suite.\n".
+     //"If you're trying to use the SNGBEcomm PHP bindings you'll probably want ".
+     //"to require('lib/SNGBEcomm.php'); instead of this file\n";
 
 function authorizeFromEnv()
 {
@@ -12,10 +12,7 @@ function authorizeFromEnv()
   SNGBEcomm::setApiKey($apiKey);
 }
 
-$ok = @include_once(dirname(__FILE__).'/simpletest/autorun.php');
-if (!$ok) {
-  $ok = @include_once(dirname(__FILE__).'/../vendor/vierbergenlars/simpletest/autorun.php');
-}
+$ok = @include_once(dirname(__FILE__).'/../vendor/simpletest/simpletest/autorun.php');
 if (!$ok) {
   echo "MISSING DEPENDENCY: The SNGBEcomm API test cases depend on SimpleTest. ".
        "Download it at <http://www.simpletest.org/>, and either install it ".
@@ -33,7 +30,7 @@ error_reporting(E_ALL | E_STRICT);
 //
 require_once(dirname(__FILE__) . '/../lib/SNGBEcomm.php');
 //
-//require_once(dirname(__FILE__) . '/Stripe/TestCase.php');
+require_once(dirname(__FILE__) . '/SNGBEcomm/TestCase.php');
 //
 //require_once(dirname(__FILE__) . '/Stripe/ApiRequestorTest.php');
 //require_once(dirname(__FILE__) . '/Stripe/Error.php');
