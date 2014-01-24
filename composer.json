@@ -1,0 +1,25 @@
+{
+    "name": "sngbecomm-php",
+    "description": "A simple SNGB internet acquiring php library.",
+    "keywords": [
+        "sngb ecommerce",
+        "payment processing",
+        "api"
+    ],
+    "homepage": "http://ecomm.sngb.ru/",
+    "authors": [
+        {
+            "name": "Yura Zatsepin",
+            "email": "yu.zatsepin@sngb.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "require-dev": {
+        "vierbergenlars/simpletest": "*"
+    },
+    "autoload": {
+        "classmap": ["lib/SNGBEcomm/"] 
+    }
+}
