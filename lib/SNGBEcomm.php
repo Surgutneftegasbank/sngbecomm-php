@@ -15,6 +15,7 @@ if (!function_exists('curl_init')) {
 // SNGBEcomm
 require(dirname(__FILE__) . '/SNGBEcomm/SNGBEcomm.php');
 
+require(dirname(__FILE__) . '/SNGBEcomm/Payment.php');
 // Utilities
 //require(dirname(__FILE__) . '/SNGBEcomm/Util.php');
 //require(dirname(__FILE__) . '/SNGBEcomm/Util/Set.php');

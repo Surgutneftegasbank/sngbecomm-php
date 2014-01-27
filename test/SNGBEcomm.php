@@ -27,10 +27,12 @@ function exception_error_handler($errno, $errstr, $errfile, $errline) {
 
 set_error_handler('exception_error_handler');
 error_reporting(E_ALL | E_STRICT);
-//
+
 require_once(dirname(__FILE__) . '/../lib/SNGBEcomm.php');
-//
+
 require_once(dirname(__FILE__) . '/SNGBEcomm/TestCase.php');
+
+require_once(dirname(__FILE__) . '/SNGBEcomm/PaymentTest.php');
 //
 //require_once(dirname(__FILE__) . '/Stripe/ApiRequestorTest.php');
 //require_once(dirname(__FILE__) . '/Stripe/Error.php');
