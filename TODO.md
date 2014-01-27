@@ -1,1 +1,2 @@
-* Here TODOS
+* Create more checks
+* Create Notification check
