@@ -33,6 +33,8 @@ require_once(dirname(__FILE__) . '/../lib/SNGBEcomm.php');
 require_once(dirname(__FILE__) . '/SNGBEcomm/TestCase.php');
 
 require_once(dirname(__FILE__) . '/SNGBEcomm/PaymentTest.php');
+
+require_once(dirname(__FILE__) . '/SNGBEcomm/ErrorTest.php');
 //
 //require_once(dirname(__FILE__) . '/Stripe/ApiRequestorTest.php');
 //require_once(dirname(__FILE__) . '/Stripe/Error.php');

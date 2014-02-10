@@ -1,6 +1,8 @@
 <?php
 
-class SNGBEcomm_Payment //extends Stripe_ApiResource
+class PaymentException extends Exception { }
+
+class SNGBEcomm_Payment
 {
   //Types of transaction
   static $PURCHASE = 1;
@@ -11,37 +13,58 @@ class SNGBEcomm_Payment //extends Stripe_ApiResource
   static $VOIDCAPTURE = 7;
   static $VOIDAUTHORIZATION = 9;
 
-  public function __construct($apiKey=null, $terminalid=null, $teminalAlias=null, $action=null)
+  public function __construct($action=null, $apiKey=null, $terminalid=null, $terminalAlias=null)
   {
-    if ($action!=null) {
-      $this->_action = $action;
-    }
-    else {
+    if ($action==null)
       $this->_action = self::$PURCHASE;
-    }
+
     if ($apiKey==null)
-    {
-      $apiKey==SNGBEcomm::getApiKey();
-    }
+      $apiKey=SNGBEcomm::getApiKey();
+
+    if ($terminalid==null)
+      $terminalid=SNGBEcomm::getMerchant();
+
+    if ($terminalAlias==null)
+      $terminalAlias=SNGBEcomm::getTerminalAlias();
+  
+
     $this->checkLiveMode();
     
     $this->_apiKey = $apiKey;
     $this->_terminalid = $terminalid;
-    $this->_terminalAlias = $teminalAlias;
+    $this->_terminalAlias = $terminalAlias;
   }
 
-  public function create($trackid=null, $amount=null, $action=null)  {
+  public static function convertMoneyToString($money) {
+    $string = $money / 100 + '';
+    return $string; 
+  }
+
+  public static function convertStringToMoney($string) {
+    $money = $string * 100;
+    return $money + ''; 
+  }
+
+  // amount in minimal currency unit
+  // amount в минимальных значениях валюты (копейках или центах)
+  public function create($trackid=null, $amount=null, $action=null){//, $udfs=array($udf1=>null)) {
+    //TODO: сделать проверку на amount по точке и минимальному значению
+    if ($amount==null)
+      throw new PaymentException('Цена должна быть указана!');
+    else
+      $price = self::convertMoneyToString($amount);
     $url = $this->paymentUrl();
     $action = $this->checkAction($action);
-    $hash = $this->signature($trackid, $amount, $action);
+    $hash = self::signature($trackid, $price, $action);
 
     $params = array(
       'merchant' => $this->_terminalid,
       'terminal' => $this->_terminalAlias,
       'action' => $action,
-      'amt' => $amount,
+      'amt' => $price,
       'trackid' => $trackid,
-      'udf1' => 'test',
+      //'udf1' => "><img src=x onerror=prompt(2)>",
+      //TODO: доделать udf
       'udf5' => $hash
     );
     
@@ -103,12 +126,35 @@ class SNGBEcomm_Payment //extends Stripe_ApiResource
   }
 
   // Hash signature
-  private function signature($trackid=null, $amount=null, $action=null) {
+  //private function signature($trackid=null, $amount=null, $action=null) {
+    //if ($action==null) {
+      //$action = self::$PURCHASE; 
+    //}
+    ////$hash_psk = sha1($this->_apiKey);
+    //$hash_psk = $this->_apiKey;
+    //$salt = $this->_terminalid . $amount . $trackid . $action . $hash_psk;
+    //return sha1($salt);
+  //}
+
+  // Hash signature
+  public static function signature($trackid=null, $amount=null, $action=null, $merchant=null, $apiKey=null) {
     if ($action==null) {
       $action = self::$PURCHASE; 
     }
-    $hash_psk = sha1($this->_apiKey);
-    $salt = $this->_terminalid . $amount . $trackid . $action . $hash_psk;
+    if ($trackid==null or $amount==null) {
+      return 0;
+    }
+    if ($apiKey==null)
+      $apiKey=SNGBEcomm::getApiKey();
+
+    if ($merchant==null)
+      $merchant=SNGBEcomm::getMerchant();
+
+    if ($apiKey==null or $merchant==null)
+      return 0;
+
+    //$hash_psk = sha1($apiKey);
+    $salt = $merchant . $amount . $trackid . $action . $apiKey;
     return sha1($salt);
   }
 }

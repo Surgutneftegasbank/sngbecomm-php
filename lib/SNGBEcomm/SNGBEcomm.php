@@ -8,7 +8,9 @@ abstract class SNGBEcomm
   public static $livemode = false;
   public static $apiVersion = null;
   public static $verifySslCerts = false;
-  const VERSION = '0.1.1';
+  public static $merchant = '';
+  public static $terminalalias = '';
+  const VERSION = '0.1.3';
 
   public static function getApiKey()
   {
@@ -18,6 +20,26 @@ abstract class SNGBEcomm
   public static function setApiKey($apiKey)
   {
       self::$apiKey = $apiKey;
+  }
+
+  public static function getMerchant()
+  {
+      return self::$merchant;
+  }
+
+  public static function setMerchant($merchant)
+  {
+      self::$merchant = $merchant;
+  }
+
+  public static function getTerminalAlias()
+  {
+      return self::$terminalalias;
+  }
+
+  public static function setTerminalAlias($terminalalias)
+  {
+      self::$terminalalias = $terminalalias;
   }
 
   public static function getApiVersion()
