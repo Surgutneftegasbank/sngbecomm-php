@@ -5,7 +5,7 @@ class PaymentTest extends UnitTestCase {
   public function testPaymentCreate()
   {
     authorizeFromEnv();
-    $payment = new SNGBEcomm_Payment('1', 'qwe123!@#', '7000', '7000-alias');
+    $payment = new SNGBEcomm_Payment('1', '64fdfab72758601fbff4dd0ef54fa6e6d96338f5', '7000', '7000-alias');
     $url = $payment->create(2, 1000);
     $this->assertTrue(strpos($url, "https://ecm.sngb.ru:443/ECommerce/hppaction?formAction") == 0);
   }
@@ -41,11 +41,11 @@ class PaymentTest extends UnitTestCase {
   public function testPaymentWithoutArgument() {
     //authorizeFromEnv();
 
-    SNGBEcomm::setApiKey('qwe123!@#');
+    SNGBEcomm::setApiKey('64fdfab72758601fbff4dd0ef54fa6e6d96338f5');
     SNGBEcomm::setMerchant('7000');
     SNGBEcomm::setTerminalAlias('7000-alias');
 
-    $payment = new SNGBEcomm_Payment('1');
+    $payment = new SNGBEcomm_Payment();
     $this->assertEqual($payment->_apiKey, SNGBEcomm::getApiKey());
     $url = $payment->create(2, 1000);
     $this->assertTrue(strpos($url, "https://ecm.sngb.ru:443/ECommerce/hppaction?formAction") == 0);

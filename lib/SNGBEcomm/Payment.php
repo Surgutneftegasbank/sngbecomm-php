@@ -28,7 +28,7 @@ class SNGBEcomm_Payment
       $terminalAlias=SNGBEcomm::getTerminalAlias();
   
 
-    $this->checkLiveMode();
+    $this->getLiveMode();
     
     $this->_apiKey = $apiKey;
     $this->_terminalid = $terminalid;
@@ -47,15 +47,23 @@ class SNGBEcomm_Payment
 
   // amount in minimal currency unit
   // amount в минимальных значениях валюты (копейках или центах)
-  public function create($trackid=null, $amount=null, $action=null){//, $udfs=array($udf1=>null)) {
+  public function create($trackid=null, $amount=null, $additional_fields=null, $action=null) {//, $udfs=array($udf1=>null)) {
     //TODO: сделать проверку на amount по точке и минимальному значению
     if ($amount==null)
       throw new PaymentException('Цена должна быть указана!');
     else
       $price = self::convertMoneyToString($amount);
-    $url = $this->paymentUrl();
     $action = $this->checkAction($action);
     $hash = self::signature($trackid, $price, $action);
+
+    if ($additional_fields==null) {
+      $additional_fields = array(
+        'udf1' => null,
+        'udf2' => null,
+        'udf3' => null,
+        'udf4' => null
+      ); 
+    }
 
     $params = array(
       'merchant' => $this->_terminalid,
@@ -63,17 +71,50 @@ class SNGBEcomm_Payment
       'action' => $action,
       'amt' => $price,
       'trackid' => $trackid,
-      //'udf1' => "><img src=x onerror=prompt(2)>",
-      //TODO: доделать udf
+      'udf1' => array_key_exists('udf1', $additional_fields)?$additional_fields["udf1"]: null,
+      'udf2' => array_key_exists('udf2', $additional_fields)?$additional_fields["udf2"]: null,
+      'udf3' => array_key_exists('udf3', $additional_fields)?$additional_fields["udf3"]: null,
+      'udf4' => array_key_exists('udf4', $additional_fields)?$additional_fields["udf4"]: null,
       'udf5' => $hash
     );
     
-    // Параметры запроса 
+    $url = $this->paymentUrl();
+    $result = $this->curlpost($params, $url);
+    return $result;
+  }
+
+  public function manage($amount=null, $trackid=null, $tranid=null, $paymentid=null, $action=null) {
+    //TODO: сделать проверку на amount по точке и минимальному значению
+    if ($amount==null)
+      throw new PaymentException('Цена должна быть указана!');
+    else
+      $price = self::convertMoneyToString($amount);
+
+    // Signature has another realiazation for manage transaction
+    $salt = $this->_terminalid . $price . $trackid . SNGBEcomm::getApiKey();         
+    $hash = sha1($salt);
+
+    $params = array(
+      'merchant' => $this->_terminalid,
+      'terminal' => $this->_terminalAlias,
+      'action' => $action ,
+      'amt' => $price ,
+      'paymentid' => $paymentid ,
+      'trackid' => $trackid ,            
+      'tranid' => $tranid ,
+      'udf5' => $hash 
+    );
+    $url = $this->manageTranUrl();
+    $result = $this->curlpost($params, $url);
+    return $result;
+  }
+
+  private function curlpost($params, $url) {
     $postdata = "";
-    foreach ( $params as $key => $value ) $postdata .= "&".rawurlencode($key)."=".rawurlencode($value);
+    foreach ( $params as $key => $value ) 
+      $postdata .= "&".rawurlencode($key)."=".rawurlencode($value);
     
     // POST
-    // Do POST
     $ch = curl_init();
     curl_setopt ($ch, CURLOPT_URL, $url );
     curl_setopt ($ch, CURLOPT_POST, 1 );
@@ -87,24 +128,22 @@ class SNGBEcomm_Payment
         //echo "cURL Error ($curl_errno): $curl_error";
     //} else {
         //echo "Data received ";
-    //}         
-    //
-    //trackId
-    //$requestor = new Stripe_ApiRequestor($this->_apiKey);
-    //$url = $this->instanceUrl() . '/capture';
-    //list($response, $apiKey) = $requestor->request('post', $url, $params);
-    //$this->refreshFrom($response, $apiKey);
-    //return $this;
+    //}
     return $result;
   }
-
+  
   // Generate Endpoint URL for system status (test or production)
   public function paymentUrl() {
-    $this->checkLiveMode();
+    $this->getLiveMode();
     return $this->_url . '/PaymentInitServlet';      
   }
 
-  private function checkLiveMode() {
+  public function manageTranUrl() {
+    $this->getLiveMode();
+    return $this->_url . '/PaymentTranServlet';      
+  }
+
+  private function getLiveMode() {
     if (SNGBEcomm::getLiveMode()) {
       $this->_url = SNGBEcomm::$productionApiBase;
     }
@@ -126,17 +165,6 @@ class SNGBEcomm_Payment
   }
 
   // Hash signature
-  //private function signature($trackid=null, $amount=null, $action=null) {
-    //if ($action==null) {
-      //$action = self::$PURCHASE; 
-    //}
-    ////$hash_psk = sha1($this->_apiKey);
-    //$hash_psk = $this->_apiKey;
-    //$salt = $this->_terminalid . $amount . $trackid . $action . $hash_psk;
-    //return sha1($salt);
-  //}
-
-  // Hash signature
   public static function signature($trackid=null, $amount=null, $action=null, $merchant=null, $apiKey=null) {
     if ($action==null) {
       $action = self::$PURCHASE; 
@@ -153,7 +181,6 @@ class SNGBEcomm_Payment
     if ($apiKey==null or $merchant==null)
       return 0;
 
-    //$hash_psk = sha1($apiKey);
     $salt = $merchant . $amount . $trackid . $action . $apiKey;
     return sha1($salt);
   }
