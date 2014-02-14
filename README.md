@@ -6,59 +6,64 @@
 * Вы можете воспользоваться нашим HTTP API.
 * Если ваша серверная часть написана на PHP, то вы можете воспользоваться нашим модулем sngbecomm-php.
  
-['https://github.com/Surgutneftegasbank/sampleshop-php'](sampleshop-php) – это пример магазина, с модулем.
+[sampleshop-php](https://github.com/Surgutneftegasbank/sampleshop-php) – это пример магазина, с модулем.
  
 Надо подключить модуль
-    '''php
-    require_once("/path/to/sngbecomm-php/lib/SNGBEcomm.php");
-    '''
 
+
+```php
+  require_once("/path/to/sngbecomm-php/lib/SNGBEcomm.php");
+```
+    
 ###Быстрый старт:
 
 В личном кабинете создайте psk. (make psk)
 Также в личном кабинете можно посмотреть свой terminal id и alias
-    '''php
-    SNGBEcomm::setApiKey('sdfkjhb23y82ybvybvkwubyv28'); // PSK
-    SNGBEcomm::setMerchant('7000'); // terminal id 
-    SNGBEcomm::setTerminalAlias('7000-alias'); // terminal-alias
-    '''
+
+```php
+  SNGBEcomm::setApiKey('sdfkjhb23y82ybvybvkwubyv28'); // PSK
+  SNGBEcomm::setMerchant('7000'); // terminal id 
+  SNGBEcomm::setTerminalAlias('7000-alias'); // terminal-alias
+```
  
 Получить url, платежной страницы банка, на которую надо перенаправить пользователя.
-    '''php
-    $payment = new SNGBEcomm_Payment();
-    //trackid – это ваш id операции платежа,
-    //Amount это цена. Цену надо передавать в минимальных единицах валюты.(копейках). Фиксированная запятая. 2 знака после запятой. Это стандарт хранения денег в БД.
-    $additional_fields = array(
-    // Номер заказа
-    "udf1" => $id,
-    // Наш номер тех. поддержки
-    "udf2" => "8 800 xxx xxx 88"
-    );
-    $url = $payment->create($trackid, $amount, $additional_fields);
-    '''
- 
 
+```php
+  $payment = new SNGBEcomm_Payment();
+  //trackid – это ваш id операции платежа,
+  //Amount это цена. Цену надо передавать в минимальных единицах валюты.(копейках). Фиксированная запятая. 2 знака после запятой. Это стандарт хранения денег в БД.
+  $additional_fields = array(
+  // Номер заказа
+  "udf1" => $id,
+  // Наш номер тех. поддержки
+  "udf2" => "8 800 xxx xxx 88"
+  );
+  $url = $payment->create($trackid, $amount, $additional_fields);
+```
+ 
 Чтобы перейти на боевой сервер:
-    '''php
-    SNGBEcomm::setLiveMode(true);
-    '''
+
+```php
+  SNGBEcomm::setLiveMode(true);
+```
  
 
 ###Обработка ошибок в процессе оплаты:
- 
-    ($error – это сообщение об ошибке, которое приходит на notification url)
-    '''php
-    $errorhandler = new SNGBEcomm_Error($error, $result, $responsecode, $hashresponse);
-    $errormessage = $errorhandler->isError($trackid, $amount, $action);
-    '''
+
+  ($error – это сообщение об ошибке, которое приходит на notification url)
+```php
+  $errorhandler = new SNGBEcomm_Error($error, $result, $responsecode, $hashresponse);
+  $errormessage = $errorhandler->isError($trackid, $amount, $action);
+```
  
 $errormessage если пустой, то все замечательно!
 Если нет, то он хранит текст сообщение об ошибке.
 
 ### Notification callback
 Создайте notification url в личном кабинете (callback от нашего сервиса после попытки оплаты клиента на платежной странице банка на ваш сервер)
+
 Пример скрипта notification.php
-'''php
+```php
   $request = $app->request;
 
   $trackid = $request->params("trackid");
@@ -85,8 +90,7 @@ $errormessage если пустой, то все замечательно!
   else {
     $reply = 'REDIRECT=' . $rootURL . '/payment/success/' . $trackid;
   }
-'''
-
+```
 
 Это базовое использование.
 Все это находится еще в процессе доводки, и вы можете задавать любые вопросы.
